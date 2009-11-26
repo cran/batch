@@ -1,0 +1,9 @@
+export(
+  mergeCsv,
+  parseCommandArgs,
+  msplit,
+  rbatch, rbatch.default, rbatch.local, rbatch.local.run, rbatch.lsf, rbatch.mosix
+)
+
+import(multicore)
+#importFrom(multicore, mclapply, detectCores)
