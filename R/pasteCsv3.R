@@ -1,4 +1,4 @@
-mergeCsv <- function( every=1, outfile="allResults.csv" ) {
+mergeCsv <- function(every=1, outfile="allResults.csv", quote=FALSE) {
   ## List of all the csv files in the current directory
   csvFiles <- setdiff(  sort( dir( pattern=".csv" ) ),  outfile  )
   if( length(csvFiles) == 0 )
@@ -54,7 +54,7 @@ mergeCsv <- function( every=1, outfile="allResults.csv" ) {
 
   ## write the results
   if( nchar(outfile) > 0 )
-    write.csv(res, outfile, quote=FALSE, row.names=FALSE)
+    write.csv(res, outfile, quote=quote, row.names=FALSE)
 
   return( res )
 }

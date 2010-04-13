@@ -44,4 +44,10 @@ rbatch.mosix(BATCH="nohup mosrun -e -b -q", BATCHPOST=" &", QUOTE="",
 \seealso{
   \code{\link{parseCommandArgs}}, \code{\link{mergeCsv}}, \code{\link{msplit}}
 }
+\references{
+  Thomas J. Hoffmann (2011). Passing in Command Line Arguments and
+  Parallel Cluster/Multicore Batching in R with batch. Journal of
+  Statistical Software, Code Snippets, 39(1), 1-11. URL
+  \url{http://www.jstatsoft.org/v39/c01/}.
+}
 \keyword{interface}

@@ -1,5 +1,5 @@
 Package: batch
-Version: 1.1-0
+Version: 1.1-2
 Date: 2010-04-13
 Title: Batching Routines in Parallel and Passing Command-Line Arguments
         to R
@@ -16,6 +16,6 @@ Suggests: multicore
 License: GPL
 URL: http://sites.google.com/site/thomashoffmannproject/
 LazyLoad: true
-Packaged: 2010-04-13 20:26:45 UTC; tom
+Packaged: 2011-02-28 01:27:39 UTC; tom
 Repository: CRAN
-Date/Publication: 2010-04-14 06:59:20
+Date/Publication: 2011-02-28 18:26:23

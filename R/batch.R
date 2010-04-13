@@ -232,7 +232,12 @@ rbatch <- function(rfile, seed, ..., rbatch.control=rbatch.default()){
 
     ret <- paste( argquote, 'c(', sep="" )
     for( i in 1:length(obj) ) {
-      ret <- paste(ret,obj[i],sep="")
+      ###ret <- paste(ret,obj[i],sep="") ## 8/17/2010 -- vectors of strings having issues
+      if(is.character(obj[i])){ ## need to handle character strings a little specially...
+        ret = paste(ret, "'", obj[i], "'", sep="")
+      }else{ ## same as before
+        ret <- paste(ret,obj[i],sep="") ## 8/17/2010 -- vectors of strings having issues
+      }
       if( i != length(obj) )
         ret <- paste(ret,",",sep="")
     }
