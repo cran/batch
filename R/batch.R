@@ -1,3 +1,87 @@
+######################
+## WINDOWS ROUTINES ##
+######################
+
+## Taken from pbatR
+## getTimeStamp(...)                                                #
+## Gets a unique time-stamp string for the output!                  #
+getTimeStamp <- function() {
+  zpad <- function(n, pad=2) {
+    if( nchar(n)<pad )
+      return( paste( rep("0",pad-nchar(n)), n, sep="" ) );
+    return(n);
+  }
+
+  d <- as.POSIXlt( Sys.time() );
+  return( paste( 1900+d$year, zpad(d$mon), zpad(d$mday), zpad(d$hour), zpad(d$min), zpad(floor(d$sec)), sep="" ) );  ## R2.3 change... seconds decide to have bloody decimal points... why can't we just be consistent between releases???? WHY??????
+}
+
+## Also taken from pbatR!
+## OS functionality
+#isWindows <- function()
+#  return( Sys.info()["sysname"]=="Windows" );
+## A more robust version of the above - I'm really not sure what to expect from vista
+isWindows <- function()
+  return(tolower(Sys.info()["sysname"]) == "windows" || tolower(R.Version()$os) == "mingw32")
+
+## Returns the name of the file that will be touched upon completion
+asyncRunCommands <- function(cmds){
+  stamp <- paste("RBATCH", getTimeStamp(), runif(1)*10000000, sep="")
+  rfile <- paste(stamp, ".R", sep="")
+  touchfile <- paste(stamp, ".touch", sep="")
+
+  f <- file(rfile, "w")
+  for(cmd in cmds){
+    ## handle the " character
+    cmd <- paste(unlist(strsplit(cmd, "\"")), collapse = "\\\"")
+    cat("system(\"", cmd, "\")\n", sep="", file=f)
+    cat("cat(\"", cmd, " completed.\\n\")\n", sep="", file=f)
+  }
+  cat("f2 <- file(\"", touchfile, "\", \"w\")\ncat('touch',file=f2)\nclose(f2)\n", sep="", file=f)
+  close(f)
+  system(paste(Rwin(), "--vanilla <", rfile), wait=FALSE)
+
+  return(touchfile)
+}
+
+parallelRunCommands <- function(cmds, n, sleep=10, wait=TRUE){ ## Sleep every second? every minute? every 10 seconds?
+  cmdsList <- msplit(cmds, n)
+  touchfiles <- rep("", n)
+  for(i in 1:n)
+    touchfiles[i] <- asyncRunCommands(cmdsList[[i]])
+
+  #print("cmds\n")
+  #print(cmds)
+  #print("touchfiles\n")
+  #print(touchfiles)
+
+  if(wait){
+    done <- rep(FALSE, n)
+    while(!all(done)){
+      for(i in 1:length(done))
+        done <- file.exists(touchfiles[i])
+      Sys.sleep(sleep)
+    }
+
+    ## And remove the files...
+    #print(touchfiles)
+    file.remove(touchfiles)
+    file.remove(paste(substring(touchfiles, 1, nchar(touchfiles) - nchar(".touch")), ".R", sep=""))
+  }
+
+  return(invisible())
+}
+
+Rwin <- function(){
+  r <- paste(Sys.getenv("R_HOME"), "/bin/R", sep="")
+  if(!file.exists(r))
+    r <- paste(r, ".exe", sep="")
+  if(!file.exists(r))
+    stop("Cannot find R executable/binary.")
+  return(r)
+}
+
+#######################
 rbatch.default <- function(){
   res <- parseCommandArgs(FALSE) #DF()
   #print(res)
@@ -28,7 +112,7 @@ rbatch.parseCommandArgs <- function(BATCH, BATCHPOST, QUOTE, ARGQUOTE, RUN, MULT
   if(!is.null(RES$QUOTE))
     QUOTE <- RES$QUOTE
   if(!is.null(RES$ARGQUOTE))
-    BATCHQUOTE <- RES$ARGQUOTE
+    ARGQUOTE <- RES$ARGQUOTE
   if(!is.null(RES$RUN)){
     #print("isn't null")
     #print(RES$RUN)
@@ -49,12 +133,17 @@ rbatch.parseCommandArgs <- function(BATCH, BATCHPOST, QUOTE, ARGQUOTE, RUN, MULT
 rbatch.local <- function(BATCH="ALLCORES", BATCHPOST="", QUOTE="", ARGQUOTE='"', RUN=1, MULTIPLIER=1){
   ncores <- 1
   if(is.character(BATCH)){
-    if(BATCH == "ALLCORES")
-      ncores <- multicore:::detectCores()
+    if(BATCH == "ALLCORES"){
+      if(isWindows()){
+        ncores <- as.numeric(Sys.getenv("NUMBER_OF_PROCESSORS"))
+      }else{
+        require(multicore)
+        ncores <- multicore:::detectCores()
+      }
+    }
   }else
     ncores <- as.integer(BATCH)
   BATCH <- ""
-  ## NOTE: IDEA: We could use the multicore package as a massive copout... hell yes! let's do it!!!
   return(rbatch.parseCommandArgs(BATCH=BATCH, BATCHPOST=BATCHPOST, QUOTE=QUOTE, ARGQUOTE=ARGQUOTE, RUN=RUN, MULTIPLIER=MULTIPLIER, LOCAL=ncores))
 }
 
@@ -87,18 +176,40 @@ rbatch.local.pushback <- function(cmdstr, cores){
 }
 
 ## EXPORTED, forks everything off!
-rbatch.local.run <- function(){
+## -- defaults to all cores, but sometimes this is detected wrong...
+rbatch.local.run <- function(ncores=NA){
   cmdstrs <- rbatch._env.get("rbatch.local._queue")
+  if(length(cmdstrs) < 1) {
+    cat("rbatch.local.run: no commands have been batched.\n")
+    return()
+  }
 
-  ## NOW USE multicore, and go ahead and batch them all off!!!
-  ncores <- rbatch._env.get("rbatch.local._numcores")
+  if(is.na(ncores))
+    ncores <- as.numeric(rbatch._env.get("rbatch.local._numcores"))
   cat("Local, ncores=", ncores, ".\n", sep="")
+  if(isWindows()){
+    ## Fix up the cmd strs to get the path to R...
+    rbin <- paste(Sys.getenv("R_HOME"), "/bin/", sep="")
+    rbin <- paste(unlist(strsplit(rbin, "\\", fixed=TRUE)), collapse = "/")
+    for(i in 1:length(cmdstrs)){
+      if(substring(cmdstrs[i], 1, 2) == "R "){
+        cmdstrs[i] <- paste(rbin, cmdstrs[i], sep="")
+      }else if(substring(cmdstrs[i], 1, 3) == " R "){
+        cmdstrs[i] <- paste(rbin, substring(cmdstrs[i], 2), sep="")
+      }
+    }
+    #print(cmdstrs) ## Good to here!
+    parallelRunCommands(cmdstrs, ncores)
+  }else{
+    ## NOW USE multicore, and go ahead and batch them all off!!!
+    #print(cmdstrs) ## Debug
+    require(multicore)
+    multicore::mclapply(cmdstrs, function(i){system(i); cat(i,"completed.\n");})
+    #cat("RAN")
+  }
 
-  #print(cmdstrs) ## Debug
-  require(multicore)
-    mclapply(cmdstrs, function(i){system(i); cat(i,"completed.\n");})
-  #cat("RAN")
-
+  ## Clear out the old queue!!!
+  rbatch._env.set("rbatch.local._queue", c())
   return(invisible())
 }
 

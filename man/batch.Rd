@@ -14,7 +14,7 @@ rbatch(rfile, seed, ..., rbatch.control=rbatch.default())
 rbatch.default()
 rbatch.local(BATCH="ALLCORES", BATCHPOST="", QUOTE="",
              ARGQUOTE='"', RUN=1, MULTIPLIER=1)
-rbatch.local.run()
+rbatch.local.run(ncores=NA)
 rbatch.lsf(BATCH="bsub -q normal", BATCHPOST="", QUOTE='"',
            ARGQUOTE='""', RUN=1, MULTIPLIER=1)
 rbatch.mosix(BATCH="nohup mosrun -e -b -q", BATCHPOST=" &", QUOTE="",
@@ -33,6 +33,8 @@ rbatch.mosix(BATCH="nohup mosrun -e -b -q", BATCHPOST=" &", QUOTE="",
   \item{ARGQUOTE}{How to quote arguments when they are vectores, default is double quote to work with LSF, you might also find single quote to be useful.}
   \item{RUN}{Default is 0, in which case the commands will not be batched. Use this to first ensure you are really batching what you want to batch. Then set this to be 1.}
   \item{MULTIPLIER}{How many times to run the current set of arguments. For example, if you have a simulation that you want to run 1000 iterations on, you could set multiplier to 10, and run 100 iterations 10 times by setting multiplier to 10. Then you could use mergeCsv(10), e.g., if you wrote your results to a csv file as exemplified in the parseCommandArgs() routine. Automatically increments the seed.}
+
+  \item{ncores}{Number of cores. If NA (default) this is automatically detected, but sometimes it is detected incorrectly.}
 }
 \details{
   Returns the next seed you can use (particularly useful when you set the multiplier argument).
