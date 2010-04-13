@@ -204,7 +204,7 @@ rbatch.local.run <- function(ncores=NA){
     ## NOW USE multicore, and go ahead and batch them all off!!!
     #print(cmdstrs) ## Debug
     require(multicore)
-    multicore::mclapply(cmdstrs, function(i){system(i); cat(i,"completed.\n");})
+    multicore::mclapply(cmdstrs, function(i){system(i); cat(i,"completed.\n");}, mc.cores=ncores)
     #cat("RAN")
   }
 
