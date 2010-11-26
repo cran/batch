@@ -137,7 +137,8 @@ rbatch <- function(rfile, seed, ..., rbatch.control=rbatch.default()){
     argstr <- ""
     for( i in 3:length(call) ) {
       callname <- names(call)[i]
-      if( callname!="BATCH" && callname!="QUOTE" && callname!="ARGQUOTE" && callname!="RUN" && callname!="MULTIPLIER" && callname!="BATCHPOST" ){
+      #if(callname!="BATCH" && callname!="QUOTE" && callname!="ARGQUOTE" && callname!="RUN" && callname!="MULTIPLIER" && callname!="BATCHPOST"){
+      if(callname!="BATCH" && callname!="QUOTE" && callname!="ARGQUOTE" && callname!="RUN" && callname!="MULTIPLIER" && callname!="BATCHPOST" && callname!="rbatch.control"){
         #wh <- which(callname == names(syscall))
         #if(length(wh) > 0){
         #  ## here's the funky addition

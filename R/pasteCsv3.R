@@ -27,6 +27,11 @@ mergeCsv <- function( every=1, outfile="allResults.csv" ) {
     res <- rbind( res, temp )
   }
 
+  ## Try to sort by seed, if possible
+  wh <- which(names(res) == "seed")
+  if(length(wh) == 1)
+    res <- res[order(res$seed), ]
+
   ## Now merge pieces of it together
   if( every>1 ) {
     i <- 1
@@ -49,7 +54,7 @@ mergeCsv <- function( every=1, outfile="allResults.csv" ) {
 
   ## write the results
   if( nchar(outfile) > 0 )
-    write.csv( res, outfile )
+    write.csv(res, outfile, quote=FALSE, row.names=FALSE)
 
   return( res )
 }

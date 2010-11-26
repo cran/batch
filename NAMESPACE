@@ -5,5 +5,5 @@ export(
   rbatch, rbatch.default, rbatch.local, rbatch.local.run, rbatch.lsf, rbatch.mosix
 )
 
-import(multicore)
+#import(multicore)
 #importFrom(multicore, mclapply, detectCores)
