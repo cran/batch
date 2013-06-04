@@ -1,0 +1,11 @@
+753e7619b3920306367d973663a9e16f *DESCRIPTION
+7d60a7f92a24ab2b6e9869fbca472506 *NAMESPACE
+4e0ca9413bf7a32a4eded74ad8b2f6de *R/batch.R
+3693855d20f6739bc99ddbdfaceedfe0 *R/msplit.R
+1ae7dc18e30b9e9ee0aec6e7a9f307e0 *R/parseCommandArgs.R
+e37ab192b4c0543209f18c45a0d6a2e4 *R/pasteCsv3.R
+2c58b8513768c54cee0c723b93ead08f *inst/CITATION
+9bd6f512d3b0b87c9cf404c8d10abc3e *man/batch.Rd
+d1a0730db75d6d16986650fd0ae45322 *man/mergeCsv.Rd
+26daf4fefab9f331013f0a84470456c2 *man/msplit.Rd
+826c0a0f035faf88924b39b19518e726 *man/parseCommandArgs.Rd
