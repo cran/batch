@@ -137,8 +137,8 @@ rbatch.local <- function(BATCH="ALLCORES", BATCHPOST="", QUOTE="", ARGQUOTE='"',
       if(isWindows()){
         ncores <- as.numeric(Sys.getenv("NUMBER_OF_PROCESSORS"))
       }else{
-        require(parallel)
-        ncores <- parallel:::detectCores()
+        #require(parallel)
+        ncores <- parallel::detectCores()
       }
     }
   }else
@@ -203,7 +203,7 @@ rbatch.local.run <- function(ncores=NA){
   }else{
     ## NOW USE parallel, and go ahead and batch them all off!!!
     #print(cmdstrs) ## Debug
-    require(parallel)
+    #require(parallel)
     parallel::mclapply(cmdstrs, function(i){system(i); cat(i,"completed.\n");}, mc.cores=ncores)
     #cat("RAN")
   }

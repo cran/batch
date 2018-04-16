@@ -7,3 +7,6 @@ export(
 
 #import(parallel)
 #importFrom(parallel, mclapply, detectCores)
+
+importFrom("stats", "runif")
+importFrom("utils", "read.csv", "write.csv")
